@@ -6,18 +6,23 @@ cds_bin=$(lbin)/cds
 cds_dir=$(HOME)/.local/share/cds
 
 nns_path=$(cds_dir)/dir_nicknames
-bash_append_file=$(cds_dir)/bashrc_append
+ba=bashrc_append.sh
+bash_append_file=$(cds_dir)/$(ba)
 paths_file=$(cds_dir)/paths_file
 help_file=$(cds_dir)/help_files/help.txt
 add_help_file=$(cds_dir)/help_files/add_help.txt
+SHELL := /bin/bash
+
+all: $(cds_bin) $(bash_append_file)
+	source ~/.bashrc
 
 $(cds_bin): cds
-	cp $< $(lbin)
+	mkdir -p $(lbin) ; cp $< $(lbin)
 
-install: $(cds_bin) bash_append
-	mkdir -p $(cds_dir) ; cp -r help_files $(cds_dir) ; touch $(nns_path)
+install: $(cds_bin) $(bash_append_file) $(cds_dir)
+	cp -r help_files $(cds_dir) ; touch $(nns_path)
 
-$(bash_append_file): $(paths_file) bashrc_append
+$(bash_append_file): $(paths_file) $(ba)
 	cat $^ > $@
 
 bash_append: $(bash_append_file)
@@ -42,9 +47,6 @@ $(cds_dir):
 uninstall:
 	rm -rf $(cds_bin) $(cds_dir);
 	./del_bashrc_lines.sh $(bash_append_file) $(bashrc)
-
-test:
-	./ok.sh
 
 clean:
 	$(RM) cds
