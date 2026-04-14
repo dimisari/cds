@@ -56,7 +56,7 @@ main =
     ["del", nickname] -> try_to_delete_nickname nickname
     ["help"] -> help
     ["inc_cd_counter", nickname] -> inc_cd_counter nickname
-    _ -> error main_err
+    args -> error $ main_err ++ show args
 
 -- try to add/addwd/cd/delete/
 try_to_add_nickname :: Nickname -> FilePath -> IO ()
