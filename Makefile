@@ -24,10 +24,8 @@ install: $(cds_bin) $(bash_append_file) $(cds_dir)
 
 $(bash_append_file): $(paths_file) $(ba)
 	cat $^ > $@
-
-bash_append: $(bash_append_file)
 	if ! grep $(bash_append_file) $(bashrc); then \
-		echo "\nsource $<" >> $(bashrc); \
+		echo -e "\nsource $(bash_append_file)" >> $(bashrc); \
 	fi
 
 cds: cds.hs
@@ -45,7 +43,7 @@ $(cds_dir):
 	mkdir -p $@
 
 uninstall:
-	rm -rf $(cds_bin) $(cds_dir);
+	$(RM) -r $(cds_bin) $(cds_dir)
 	./del_bashrc_lines.sh $(bash_append_file) $(bashrc)
 
 clean:
