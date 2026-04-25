@@ -16,6 +16,7 @@ type NickNameInfo = (Dir, CdCounter)
 type NickNameTuple = (Nickname, NickNameInfo)
 
 -- relative to HOME
+
 get_cds_dir :: IO Dir
 get_cds_dir = E.getEnv "HOME" >$> (++ "/.local/share/cds/")
 
@@ -142,6 +143,7 @@ tuples_to_file tuples =
     nickname ++ "," ++ dir ++ "," ++ show cd_counter
 
 -- help
+
 help :: IO ()
 help = get_path_and_print get_help_file_path
 
@@ -152,15 +154,12 @@ get_path_and_print :: IO Path -> IO ()
 get_path_and_print get_path = get_path >>= read_file >>= print
 
 -- helpers
+
 check_if_exists :: Nickname -> IO (Maybe NickNameInfo)
 check_if_exists nickname = get_tuples >$> lookup nickname
 
 command_read_output :: String -> IO String
-command_read_output command =
-  P.callCommand (command ++ " > " ++ tmp_file) >> read_file tmp_file
-  where
-  tmp_file :: Path
-  tmp_file = "/tmp/cds_command_output"
+command_read_output command = P.readCreateProcess (P.shell command) ""
 
 remove_nickname :: Nickname -> [NickNameTuple] -> [NickNameTuple]
 remove_nickname nickname tuples = tuples &> filter (fst .> (/= nickname))
