@@ -4,8 +4,8 @@ import Types qualified as T
 
 -- messages
 
-name_exits_msg :: FilePath -> String
-name_exits_msg old_dir = "Nickname already exists for: " ++ old_dir
+name_exists_msg :: FilePath -> String
+name_exists_msg old_dir = "Nickname already exists for: " ++ old_dir
 
 adding_msg :: T.Nickname -> FilePath -> String
 adding_msg nickname dir = "\nAdding " ++ dir ++ " as " ++ nickname ++ "\n"

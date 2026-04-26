@@ -29,7 +29,7 @@ add_nickname :: T.Nickname -> FilePath -> IO ()
 add_nickname nickname dir =
   check_if_exists nickname >>= \case
     Nothing -> actually_add_nickname nickname dir
-    Just (old_dir, _) -> H.utf8_print $ MAE.name_exits_msg old_dir
+    Just (old_dir, _) -> H.utf8_print $ MAE.name_exists_msg old_dir
   where
   check_if_exists :: T.Nickname -> IO (Maybe T.NickNameInfo)
   check_if_exists nickname = get_tuples >$> lookup nickname
