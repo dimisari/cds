@@ -29,7 +29,7 @@ add_nickname :: T.Nickname -> FilePath -> IO ()
 add_nickname nickname dir =
   check_if_exists nickname >>= \case
     Nothing -> actually_add_nickname nickname dir
-    Just (old_dir, _) -> H.utf8_print $ MAE.name_exists_msg old_dir
+    Just (old_dir, _) -> H.utf8_print $ MAE.name_exists_msg old_dir nickname
   where
   check_if_exists :: T.Nickname -> IO (Maybe T.NickNameInfo)
   check_if_exists nickname = get_tuples >$> lookup nickname
@@ -50,12 +50,12 @@ delete_nickname :: T.Nickname -> IO ()
 delete_nickname nickname =
   get_tuples >>= \tuples ->
   case lookup nickname tuples of
-    Nothing -> H.utf8_print("T.Nickname \"" ++ nickname ++ "\" does not exist")
+    Nothing -> H.utf8_print $ MAE.nickname_does_not_exist_msg nickname
     Just (dir, _) -> actually_delete_nickname tuples nickname dir
 
 actually_delete_nickname :: [T.NickNameTuple] -> T.Nickname -> T.Dir -> IO ()
-actually_delete_nickname tuples nickname dir =
-  H.utf8_print("\nDeleting " ++ nickname ++ " pointing to " ++ dir ++ "\n") >>
+actually_delete_nickname = \tuples nickname dir ->
+  H.utf8_print (MAE.deleting_msg nickname dir) >>
   (remove_nickname nickname tuples &> tuples_to_file)
 
 list :: IO ()

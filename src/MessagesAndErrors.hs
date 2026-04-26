@@ -4,11 +4,20 @@ import Types qualified as T
 
 -- messages
 
-name_exists_msg :: FilePath -> String
-name_exists_msg old_dir = "Nickname already exists for: " ++ old_dir
+name_exists_msg :: FilePath -> T.Nickname -> String
+name_exists_msg = \old_dir nickname ->
+  "\nNickname " ++ nickname ++ " already exists for: " ++ old_dir ++ "\n"
 
 adding_msg :: T.Nickname -> FilePath -> String
-adding_msg nickname dir = "\nAdding " ++ dir ++ " as " ++ nickname ++ "\n"
+adding_msg = \nickname dir -> "\nAdding " ++ dir ++ " as " ++ nickname ++ "\n"
+
+nickname_does_not_exist_msg :: T.Nickname -> String
+nickname_does_not_exist_msg = \nickname ->
+  "\nNickname \"" ++ nickname ++ "\" does not exist\n"
+
+deleting_msg :: T.Nickname -> T.Dir -> String
+deleting_msg = \nickname dir ->
+  "\nDeleting " ++ nickname ++ " pointing to " ++ dir ++ "\n"
 
 unknown_nickname_msg :: String
 unknown_nickname_msg =
