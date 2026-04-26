@@ -1,0 +1,25 @@
+
+# dirs
+
+share_dir := $(HOME)/.local/share/cds
+
+repo_share_dir := ../share
+
+src := ../src
+
+# files
+
+share_files := $(shell find $(repo_share_dir) -type f)
+
+share_dir_files :=\
+  $(patsubst $(repo_share_dir)/%, $(share_dir)/%, $(share_files))
+
+bashrc := $(HOME)/.bashrc
+
+local_bin_cds := $(HOME)/.local/bin/cds
+
+nicknames_path := $(share_dir)/dir_nicknames
+
+cd_info_path := $(share_dir)/cd_info
+
+bash_append_file := $(share_dir)/bashrc_append.sh
