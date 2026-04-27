@@ -3,7 +3,6 @@
 module Main where
 
 import System.Environment qualified as E
-import System.Process qualified as P
 import Data.List qualified as DL
 import Data.List.Split qualified as DLS
 
@@ -58,6 +57,8 @@ actually_delete_nickname = \tuples nickname dir ->
   H.utf8_print (MAE.deleting_msg nickname dir) >>
   (remove_nickname nickname tuples &> tuples_to_file)
 
+-- list
+
 list :: IO ()
 list =
   get_tuples >>= \case
@@ -75,6 +76,8 @@ list =
 
   nl_top_bottom :: String -> String
   nl_top_bottom = ("\n\n" ++) .> (++ "\n\n")
+
+-- write_nickname_path_to_path_file
 
 write_nickname_path_to_path_file :: T.Nickname -> IO ()
 write_nickname_path_to_path_file = \nickname ->
@@ -105,9 +108,11 @@ get_tuples =
 
 tuples_to_file :: [T.NickNameTuple] -> IO ()
 tuples_to_file tuples =
-  (tuples &> map tuple_to_line &> unlines &> H.write_file "/tmp/temp") >>
-  (P.callCommand =<< (("mv /tmp/temp " ++) <$> H.get_nick_names_path))
+  H.get_nick_names_path >>= flip H.write_file file_str
   where
+  file_str :: String
+  file_str = tuples &> map tuple_to_line &> unlines
+
   tuple_to_line :: T.NickNameTuple -> String
   tuple_to_line (nickname, (dir, cd_counter)) =
     nickname ++ "," ++ dir ++ "," ++ show cd_counter
