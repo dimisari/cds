@@ -23,7 +23,9 @@ pwd :: IO String
 pwd = command_read_output "pwd" >$> filter (/= '\n')
 
 command_read_output :: String -> IO String
-command_read_output command = P.readCreateProcess (P.shell command) ""
+command_read_output command =
+  P.callCommand (command ++ " > /tmp/command_output") >>
+  read_file "/tmp/command_output"
 
 -- cd_info
 
@@ -48,7 +50,7 @@ print_help_file = get_help_file_path >>= print_file
 print_add_help_file :: IO ()
 print_add_help_file = get_add_help_file_path >>= print_file
 
--- read/write/append nicknames file
+-- read/write/append to nicknames file
 
 read_nicknames_file :: IO String
 read_nicknames_file = get_nicknames_path >>= read_file
