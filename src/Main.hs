@@ -12,6 +12,7 @@ import Helpers ((>$>), (.>), (&>))
 import Helpers qualified as H
 
 -- main
+
 main :: IO ()
 main =
   E.getArgs >>= \case
@@ -25,37 +26,26 @@ main =
 -- add
 
 add_nickname :: T.Nickname -> FilePath -> IO ()
-add_nickname nickname dir =
-  check_if_exists nickname >>= \case
-    Nothing -> actually_add_nickname nickname dir
-    Just (old_dir, _) -> H.utf8_print $ MAE.name_exists_msg old_dir nickname
-  where
-  check_if_exists :: T.Nickname -> IO (Maybe T.NickNameInfo)
-  check_if_exists nickname = get_tuples >$> lookup nickname
-
-  actually_add_nickname :: T.Nickname -> FilePath -> IO ()
-  actually_add_nickname nickname dir =
-    H.utf8_print (MAE.adding_msg nickname dir) >>
-    H.get_nick_names_path >>=
-    flip H.append_file ("\n" ++ nickname ++ "," ++ dir ++ ",0")
+add_nickname = \nickname dir ->
+  lookup_nickname nickname >>= \case
+    Nothing ->
+      H.utf8_print (MAE.adding_msg nickname dir) >>
+      add_nickname_tuple_to_file (nickname, (dir, 0))
+    Just (old_dir, _) ->
+      H.utf8_print $ MAE.name_exists_msg old_dir nickname
 
 add_nickname_for_wd :: T.Nickname -> IO ()
-add_nickname_for_wd nickname =
+add_nickname_for_wd = \nickname ->
   H.command_read_output "pwd" >$> filter (/= '\n') >>= add_nickname nickname
 
 -- delete
 
 delete_nickname :: T.Nickname -> IO ()
-delete_nickname nickname =
-  get_tuples >>= \tuples ->
-  case lookup nickname tuples of
+delete_nickname = \nickname ->
+  lookup_nickname nickname >>= \case
     Nothing -> H.utf8_print $ MAE.nickname_does_not_exist_msg nickname
-    Just (dir, _) -> actually_delete_nickname tuples nickname dir
-
-actually_delete_nickname :: [T.NickNameTuple] -> T.Nickname -> T.Dir -> IO ()
-actually_delete_nickname = \tuples nickname dir ->
-  H.utf8_print (MAE.deleting_msg nickname dir) >>
-  (remove_nickname nickname tuples &> tuples_to_file)
+    Just (dir, _) ->
+      H.utf8_print (MAE.deleting_msg nickname dir) >> remove_nickname nickname
 
 -- list
 
@@ -72,7 +62,7 @@ list =
   convert_to_str = map to_pointing_str .> DL.intercalate "\n\n" .> nl_top_bottom
 
   to_pointing_str :: T.NickNameTuple -> String
-  to_pointing_str (nickname, (dir, _)) = nickname ++ " -> " ++ dir
+  to_pointing_str = \(nickname, (dir, _)) -> nickname ++ " -> " ++ dir
 
   nl_top_bottom :: String -> String
   nl_top_bottom = ("\n\n" ++) .> (++ "\n\n")
@@ -81,21 +71,18 @@ list =
 
 write_path_to_cd_info :: T.Nickname -> IO ()
 write_path_to_cd_info = \nickname ->
-  get_tuples >>= \tuples ->
-  case lookup nickname tuples of
+  lookup_nickname nickname >>= \case
     Nothing -> print MAE.unknown_nickname_msg >> H.cd_info_path nickname
     Just (dir, cd_counter) ->
-      tuples_to_file new_tuples >> H.cd_info_path dir
-      where
-      new_tuples :: [T.NickNameTuple]
-      new_tuples =
-        (nickname, (dir, cd_counter + 1)) : remove_nickname nickname tuples
+      remove_nickname nickname >>
+      add_nickname_tuple_to_file (nickname, (dir, cd_counter + 1)) >>
+      H.cd_info_path dir
 
 -- tuples from/to file
 
 get_tuples :: IO [T.NickNameTuple]
 get_tuples =
-  (H.get_nick_names_path >>= H.read_file) >$> file_str_to_tuples
+  H.read_nicknames_file >$> file_str_to_tuples
   where
   file_str_to_tuples :: String -> [T.NickNameTuple]
   file_str_to_tuples = lines .> filter (/= "") .> map line_to_tuple
@@ -106,18 +93,27 @@ get_tuples =
       [nickname, dir, cd_counter] -> (nickname, (dir, read cd_counter))
       other -> error $ MAE.line_to_tuple_err ++ show other
 
-tuples_to_file :: [T.NickNameTuple] -> IO ()
-tuples_to_file tuples =
-  H.get_nick_names_path >>= flip H.write_file file_str
-  where
-  file_str :: String
-  file_str = tuples &> map tuple_to_line &> unlines
-
-  tuple_to_line :: T.NickNameTuple -> String
-  tuple_to_line (nickname, (dir, cd_counter)) =
-    nickname ++ "," ++ dir ++ "," ++ show cd_counter
-
 -- other
 
-remove_nickname :: T.Nickname -> [T.NickNameTuple] -> [T.NickNameTuple]
-remove_nickname nickname tuples = tuples &> filter (fst .> (/= nickname))
+lookup_nickname :: T.Nickname -> IO (Maybe T.NickNameInfo)
+lookup_nickname = \nickname -> get_tuples >$> lookup nickname
+
+remove_nickname :: T.Nickname -> IO ()
+remove_nickname = \nickname ->
+  get_tuples >$> filter (fst .> (/= nickname)) >>= tuples_to_file
+
+tuples_to_file :: [T.NickNameTuple] -> IO ()
+tuples_to_file =
+  map tuple_to_line .> unlines .> H.write_to_nicknames_file
+  where
+  tuple_to_line :: T.NickNameTuple -> String
+  tuple_to_line = \(nickname, (dir, cd_counter)) ->
+    nickname ++ "," ++ dir ++ "," ++ show cd_counter
+
+add_nickname_tuple_to_file :: T.NickNameTuple -> IO ()
+add_nickname_tuple_to_file =
+  nickname_tuple_to_file_line .> H.append_to_nicknames_file
+
+nickname_tuple_to_file_line :: T.NickNameTuple -> String
+nickname_tuple_to_file_line = \(nickname, (dir, cd_counter)) ->
+  nickname ++ "," ++ dir ++ "," ++ show cd_counter ++ "\n"

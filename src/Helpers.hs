@@ -11,9 +11,13 @@ import Data.List.Split qualified as DLS
 import Types qualified as T
 import MessagesAndErrors qualified as MAE
 
+-- operators
+
 (>$>) = flip (<$>)
 (.>) = flip (.)
 x &> f = f x
+
+-- command
 
 command_read_output :: String -> IO String
 command_read_output command = P.readCreateProcess (P.shell command) ""
@@ -41,13 +45,26 @@ print_help_file = get_help_file_path >>= print_file
 print_add_help_file :: IO ()
 print_add_help_file = get_add_help_file_path >>= print_file
 
+-- read/write/append nicknames file
+
+read_nicknames_file :: IO String
+read_nicknames_file = get_nicknames_path >>= read_file
+
+write_to_nicknames_file :: String -> IO ()
+write_to_nicknames_file = \str ->
+  get_nicknames_path >>= \path -> write_file path str
+
+append_to_nicknames_file :: String -> IO ()
+append_to_nicknames_file = \str ->
+  get_nicknames_path >>= \path -> append_file path str
+
 -- get paths
 
 get_cds_dir :: IO T.Dir
 get_cds_dir = append_to_path (E.getEnv "HOME") "/.local/share/cds/"
 
-get_nick_names_path :: IO T.Path
-get_nick_names_path = append_to_path get_cds_dir "dir_nicknames"
+get_nicknames_path :: IO T.Path
+get_nicknames_path = append_to_path get_cds_dir "dir_nicknames"
 
 get_cd_info_path :: IO T.Path
 get_cd_info_path = append_to_path get_cds_dir "cd_info"
