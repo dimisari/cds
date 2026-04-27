@@ -6,10 +6,11 @@ import Types qualified as T
 
 name_exists_msg :: FilePath -> T.Nickname -> String
 name_exists_msg = \old_dir nickname ->
-  "\nNickname " ++ nickname ++ " already exists for: " ++ old_dir ++ "\n"
+  "\nNickname \"" ++ nickname ++ "\" already exists for \"" ++ old_dir ++ "\"\n"
 
 adding_msg :: T.Nickname -> FilePath -> String
-adding_msg = \nickname dir -> "\nAdding " ++ dir ++ " as " ++ nickname ++ "\n"
+adding_msg = \nickname dir ->
+  "\nAdding \"" ++ dir ++ "\" as \"" ++ nickname ++ "\"\n"
 
 nickname_does_not_exist_msg :: T.Nickname -> String
 nickname_does_not_exist_msg = \nickname ->
@@ -17,7 +18,7 @@ nickname_does_not_exist_msg = \nickname ->
 
 deleting_msg :: T.Nickname -> T.Dir -> String
 deleting_msg = \nickname dir ->
-  "\nDeleting " ++ nickname ++ " pointing to " ++ dir ++ "\n"
+  "\nDeleting \"" ++ nickname ++ "\" pointing to \"" ++ dir ++ "\"\n"
 
 unknown_nickname_msg :: String
 unknown_nickname_msg =
