@@ -19,6 +19,9 @@ x &> f = f x
 
 -- command
 
+pwd :: IO String
+pwd = command_read_output "pwd" >$> filter (/= '\n')
+
 command_read_output :: String -> IO String
 command_read_output command = P.readCreateProcess (P.shell command) ""
 

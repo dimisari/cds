@@ -26,16 +26,8 @@ unknown_nickname_msg =
 
 -- errors
 
-main_err :: T.Error
-main_err = "main: none of the commands was run"
-
 line_to_tuple_err :: T.Error
 line_to_tuple_err = "line_to_tuple: not correct format\n"
 
-inc_cd_counter_err :: T.Error
-inc_cd_counter_err =
-  "get_nickname_path: trying to increase counter on non existant nickname"
-
 dont_cd_err :: T.Error
-dont_cd_err =
-  "dont_cd: info path does not have 2 comma seperated values"
+dont_cd_err = "dont_cd: info path does not have 2 comma seperated values"
