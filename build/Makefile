@@ -12,8 +12,8 @@ MKDIR = @mkdir -p $(@D)
 install: \
 	$(local_bin_cds) $(share_dir_files) $(bashrc) $(nicknames_path) $(cd_info_path)
 
-$(local_bin_cds): $(src)/Main.hs
-	$(MKDIR); $(GHC) $< -o $@
+$(local_bin_cds): $(wildcard $(src)/*.hs)
+	$(MKDIR); $(GHC) $(src)/Main.hs -o $@
 
 $(bashrc): $(bash_append_file)
 	if ! grep $(bash_append_file) $(bashrc); then \
