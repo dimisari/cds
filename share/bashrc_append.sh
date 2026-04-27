@@ -1,8 +1,14 @@
+
+CD_INFO_FILE=$HOME/.local/share/cds/cd_info
+
+CDS_BIN=$HOME/.local/bin/cds
+
 cds(){
-  $HOME/.local/bin/cds $@
-  cd_info=$(cat $HOME/.local/share/cds/cd_info)
-  to_cd_or_not_to_cd=$(cut -d',' -f1 $HOME/.local/share/cds/cd_info)
-  cd_path=$(cut -d',' -f2 $HOME/.local/share/cds/cd_info)
+  $CDS_BIN $@
+
+  to_cd_or_not_to_cd=$(cut -d',' -f1 $CD_INFO_FILE)
+  cd_path=$(cut -d',' -f2 $CD_INFO_FILE)
+
   case $to_cd_or_not_to_cd in
     "cd") cd $cd_path ;;
     "dont_cd") ;;

@@ -19,7 +19,7 @@ main =
     ["add", nickname] -> add_nickname_for_wd nickname >> H.dont_cd
     ["del", nickname] -> delete_nickname nickname >> H.dont_cd
     ["help"] -> H.print_help_file >> H.dont_cd
-    [nickname] -> write_nickname_path_to_path_file nickname
+    [nickname] -> write_path_to_cd_info nickname
     _ -> print "Unexpected arguments"
 
 -- add
@@ -77,10 +77,10 @@ list =
   nl_top_bottom :: String -> String
   nl_top_bottom = ("\n\n" ++) .> (++ "\n\n")
 
--- write_nickname_path_to_path_file
+-- write_path_to_cd_info
 
-write_nickname_path_to_path_file :: T.Nickname -> IO ()
-write_nickname_path_to_path_file = \nickname ->
+write_path_to_cd_info :: T.Nickname -> IO ()
+write_path_to_cd_info = \nickname ->
   get_tuples >>= \tuples ->
   case lookup nickname tuples of
     Nothing -> print MAE.unknown_nickname_msg >> H.cd_info_path nickname
