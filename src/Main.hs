@@ -2,6 +2,7 @@
 
 module Main where
 
+import System.Directory qualified as D
 import System.Environment qualified as E
 import Data.List qualified as DL
 import Data.List.Split qualified as DLS
@@ -69,19 +70,31 @@ delete_nickname = \nickname ->
 -- write_path_to_cd_info
 
 write_path_to_cd_info :: T.Nickname -> IO ()
-write_path_to_cd_info = \nickname ->
+write_path_to_cd_info nickname =
   lookup_nickname nickname >>= \case
-    Nothing -> print MAE.unknown_nickname_msg >> H.cd_info_path nickname
-    Just (dir, cd_counter) ->
-      remove_nickname nickname >>
-      add_nickname_tuple_to_file (nickname, (dir, cd_counter + 1)) >>
-      H.cd_info_path dir
+    Nothing -> write_nickname_to_path_if_dir
+    Just nick_name_info -> inc_counter_and_write_dir_to_path nick_name_info
+  where
+  write_nickname_to_path_if_dir :: IO ()
+  write_nickname_to_path_if_dir =
+    print (MAE.unknown_nickname_msg nickname) >>
+    D.doesDirectoryExist nickname >>= \case
+      True -> print MAE.is_dir_cd_msg >> H.write_cd_to_path nickname
+      False -> print MAE.is_not_dir_cd_msg >> H.dont_cd
+
+  inc_counter_and_write_dir_to_path :: T.NickNameInfo -> IO ()
+  inc_counter_and_write_dir_to_path = \(dir, cd_counter) ->
+    remove_nickname nickname >>
+    add_nickname_tuple_to_file (nickname, (dir, cd_counter + 1)) >>
+    H.write_cd_to_path dir
 
 -- tuples from file
 
 get_tuples :: IO [T.NickNameTuple]
 get_tuples =
-  H.read_nicknames_file >$> file_str_to_tuples
+  H.does_nicknames_file_exist >>= \case
+    True -> H.read_nicknames_file >$> file_str_to_tuples
+    False -> pure []
   where
   file_str_to_tuples :: String -> [T.NickNameTuple]
   file_str_to_tuples = lines .> filter (/= "") .> map line_to_tuple

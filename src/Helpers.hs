@@ -2,6 +2,7 @@
 
 module Helpers where
 
+import System.Directory qualified as D
 import System.Environment qualified as E
 import Data.ByteString qualified as BS
 import Data.ByteString.UTF8 qualified as U
@@ -10,12 +11,6 @@ import Data.List.Split qualified as DLS
 
 import Types qualified as T
 import MessagesAndErrors qualified as MAE
-
--- operators
-
-(>$>) = flip (<$>)
-(.>) = flip (.)
-x &> f = f x
 
 -- command
 
@@ -29,15 +24,27 @@ command_read_output command =
 
 -- cd_info
 
-cd_info_path :: String -> IO ()
-cd_info_path = ("cd," ++) .> write_to_cd_info
+write_cd_to_path :: String -> IO ()
+write_cd_to_path = ("cd," ++) .> write_to_cd_info
+
+does_cd_info_file_exist :: IO Bool
+does_cd_info_file_exist = get_cd_info_path >>= D.doesFileExist
+
+read_cd_info_file :: IO String
+read_cd_info_file = get_cd_info_path >>= read_file
 
 dont_cd :: IO ()
 dont_cd =
-  get_cd_info_path >>= read_file >>= DLS.splitOn "," .> \case
-    [cd, path] -> write_to_cd_info $ "dont_cd," ++ path
-    [""] -> write_to_cd_info "dont_cd,"
-    [] -> error MAE.dont_cd_err
+  does_cd_info_file_exist >>= \case
+    True -> dont_cd_cd_info_exists
+    False -> write_to_cd_info "dont_cd,"
+  where
+  dont_cd_cd_info_exists :: IO ()
+  dont_cd_cd_info_exists =
+    read_cd_info_file >>= DLS.splitOn "," .> \case
+      [cd, path] -> write_to_cd_info $ "dont_cd," ++ path
+      [""] -> write_to_cd_info "dont_cd,"
+      [] -> error MAE.dont_cd_err
 
 write_to_cd_info :: String -> IO ()
 write_to_cd_info = \str -> get_cd_info_path >>= \path -> write_file path str
@@ -51,6 +58,9 @@ print_add_help_file :: IO ()
 print_add_help_file = get_add_help_file_path >>= print_file
 
 -- read/write/append to nicknames file
+
+does_nicknames_file_exist :: IO Bool
+does_nicknames_file_exist = get_nicknames_path >>= D.doesFileExist
 
 read_nicknames_file :: IO String
 read_nicknames_file = get_nicknames_path >>= read_file
@@ -102,6 +112,12 @@ append_file = \p s -> BS.appendFile p (U.fromString s)
 
 print_file :: T.Path -> IO ()
 print_file = read_file .> (>>= utf8_print)
+
+-- operators
+
+(>$>) = flip (<$>)
+(.>) = flip (.)
+x &> f = f x
 
 -- to use "print" for strings instead of "putStrLn"
 

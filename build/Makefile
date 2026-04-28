@@ -9,8 +9,7 @@ GHC := ghc $(GHC_flags) -i$(src)
 
 MKDIR = @mkdir -p $(@D)
 
-install: \
-	$(local_bin_cds) $(share_dir_files) $(bashrc) $(nicknames_path) $(cd_info_path)
+install: $(local_bin_cds) $(share_dir_files) $(bashrc)
 
 $(local_bin_cds): $(wildcard $(src)/*.hs)
 	$(MKDIR); $(GHC) $(src)/Main.hs -o $@
@@ -19,12 +18,6 @@ $(bashrc): $(bash_append_file)
 	if ! grep $(bash_append_file) $(bashrc); then \
 		echo -e "\nsource $(bash_append_file)" >> $(bashrc); \
 	fi
-
-$(nicknames_path):
-	$(MKDIR); touch $(nicknames_path)
-
-$(cd_info_path):
-	$(MKDIR); touch $(cd_info_path)
 
 $(share_dir)/%: $(repo_share_dir)/%
 	$(MKDIR); cp $< $@
