@@ -79,14 +79,13 @@ write_path_to_cd_info nickname =
   write_nickname_to_path_if_dir =
     print (MAE.unknown_nickname_msg nickname) >>
     D.doesDirectoryExist nickname >>= \case
-      True -> print MAE.is_dir_cd_msg >> H.write_cd_to_path nickname
+      True -> print MAE.is_dir_cd_msg >> save_back_and_write_cd_to_path nickname
       False -> print MAE.is_not_dir_cd_msg >> H.dont_cd
 
   inc_counter_and_write_dir_to_path :: T.NickNameInfo -> IO ()
   inc_counter_and_write_dir_to_path = \(dir, cd_counter) ->
-    remove_nickname nickname >>
-    add_nickname_tuple_to_file (nickname, (dir, cd_counter + 1)) >>
-    H.write_cd_to_path dir
+    replace_nickname (nickname, (dir, cd_counter + 1)) >>
+    save_back_and_write_cd_to_path dir
 
 -- tuples from file
 
@@ -129,3 +128,16 @@ lookup_nickname = \nickname -> get_tuples >$> lookup nickname
 remove_nickname :: T.Nickname -> IO ()
 remove_nickname = \nickname ->
   get_tuples >$> filter (fst .> (/= nickname)) >>= tuples_to_file
+
+replace_nickname :: T.NickNameTuple -> IO ()
+replace_nickname = \tuple@(nickname, _) ->
+  remove_nickname nickname >> add_nickname_tuple_to_file tuple
+
+-- other
+
+save_back_and_write_cd_to_path :: String -> IO ()
+save_back_and_write_cd_to_path = \p ->
+  replace_back_with_wd >> H.write_cd_to_path p
+
+replace_back_with_wd :: IO ()
+replace_back_with_wd = H.pwd >>= \wd -> replace_nickname ("back", (wd, 0))
