@@ -1,34 +1,30 @@
 # cd on steroids
 
+# Usage
 ```console
 foo@bar:~$ cds
 
 
 docs -> /home/foo/Documents
 
-desk -> /home/foo/Desktop
-
 down -> /home/foo/Downloads
 
+share -> /home/foo/.local/share
 
-```
 
-```console
-foo@bar:~$ cds desk
-foo@bar:~/Desktop$
-```
+foo@bar:~$ cds down
+foo@bar:~/Downloads$ cds share
+foo@bar:~/.local/share$ cds docs
+foo@bar:~/Documents$ cds help
 
-```console
-foo@bar:~$ cds help
+To list nicknames
+$ cds
 
-To list nicknames:
-cds
+To add the nickname <nickname> for the working directory
+$ cds add <nickname>
 
-To add the nickname <nickname> for the working directory:
-cds add <nickname>
-
-To delete the nickname <nickname>:
-cds del <nickname>
+To delete the nickname <nickname>
+$ cds del <nickname>
 
 ```
 
@@ -40,11 +36,10 @@ sudo apt install ghc
 
 # Installation
 ```
-make install && source ~/.bashrc
+make install
 ```
 
 # Deletion
 ```
 make uninstall
 ```
-

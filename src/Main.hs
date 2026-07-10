@@ -120,7 +120,7 @@ nickname_tuple_to_file_line :: T.NickNameTuple -> String
 nickname_tuple_to_file_line = \(nickname, (dir, cd_counter)) ->
   nickname ++ "," ++ dir ++ "," ++ show cd_counter ++ "\n"
 
--- nickname lookup/remove
+-- nickname lookup/remove/replace
 
 lookup_nickname :: T.Nickname -> IO (Maybe T.NickNameInfo)
 lookup_nickname = \nickname -> get_tuples >$> lookup nickname
@@ -133,7 +133,7 @@ replace_nickname :: T.NickNameTuple -> IO ()
 replace_nickname = \tuple@(nickname, _) ->
   remove_nickname nickname >> add_nickname_tuple_to_file tuple
 
--- other
+-- "back" nickname
 
 save_back_and_write_cd_to_path :: String -> IO ()
 save_back_and_write_cd_to_path = \p ->

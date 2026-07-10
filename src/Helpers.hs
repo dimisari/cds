@@ -27,24 +27,24 @@ command_read_output command =
 write_cd_to_path :: String -> IO ()
 write_cd_to_path = ("cd," ++) .> write_to_cd_info
 
-does_cd_info_file_exist :: IO Bool
-does_cd_info_file_exist = get_cd_info_path >>= D.doesFileExist
-
-read_cd_info_file :: IO String
-read_cd_info_file = get_cd_info_path >>= read_file
-
 dont_cd :: IO ()
 dont_cd =
   does_cd_info_file_exist >>= \case
     True -> dont_cd_cd_info_exists
     False -> write_to_cd_info "dont_cd,"
-  where
-  dont_cd_cd_info_exists :: IO ()
-  dont_cd_cd_info_exists =
-    read_cd_info_file >>= DLS.splitOn "," .> \case
-      [cd, path] -> write_to_cd_info $ "dont_cd," ++ path
-      [""] -> write_to_cd_info "dont_cd,"
-      [] -> error MAE.dont_cd_err
+
+dont_cd_cd_info_exists :: IO ()
+dont_cd_cd_info_exists =
+  read_cd_info_file >>= DLS.splitOn "," .> \case
+    [cd, path] -> write_to_cd_info $ "dont_cd," ++ path
+    [""] -> write_to_cd_info "dont_cd,"
+    [] -> error MAE.dont_cd_err
+
+does_cd_info_file_exist :: IO Bool
+does_cd_info_file_exist = get_cd_info_path >>= D.doesFileExist
+
+read_cd_info_file :: IO String
+read_cd_info_file = get_cd_info_path >>= read_file
 
 write_to_cd_info :: String -> IO ()
 write_to_cd_info = \str -> get_cd_info_path >>= \path -> write_file path str

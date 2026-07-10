@@ -23,3 +23,7 @@ nicknames_path := $(share_dir)/dir_nicknames
 cd_info_path := $(share_dir)/cd_info
 
 bash_append_file := $(share_dir)/bashrc_append.sh
+
+bash_completion_file := $(share_dir)/bash_completion.sh
+
+bash_completion_install := $(HOME)/.local/share/bash-completion/completions/cds
